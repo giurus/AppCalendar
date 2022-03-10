@@ -3,61 +3,66 @@ import "../../css/login.css";
 
 export const LoginScreen = () => {
   return (
-    <main className="container-fluid">
-      <div className="row boxLogin">
-        <div className="col-12 col-sm-6">
-          <form className="form-signin">
-            <h1 className="h3 mb-3 fw-normal text-center">Login</h1>
-            <div className="form-floating">
-              <input
-                type="email"
-                className="form-control"
-                placeholder="Email"
-              />
-              <label className="floatingInput">Email</label>
+    <div className="container login-container">
+      <div className="row">
+        <div className="col-md-6 login-form-1">
+          <h3>Login</h3>
+          <form>
+            <div className="form-group">
+              <input type="text" className="form-control" placeholder="Email" />
             </div>
-            <div className="form-floating">
+            <div className="form-group">
               <input
                 type="password"
                 className="form-control"
                 placeholder="Password"
               />
-              <label className="floatingInput">Password</label>
             </div>
-            <button className="w-100 btn btn-lg btn-primary mt-2">
-              Sign in
-            </button>
+            <div className="form-group d-grid col-6">
+              <input
+                type="submit"
+                className="btn btn-primary"
+                value="Sign in"
+              />
+            </div>
           </form>
         </div>
-        <div className="col-12 col-sm-6">
-          <form className="form-signin">
-            <h1 className="h3 mb-3 fw-normal text-center">Register</h1>
-            <div className="form-floating">
+
+        <div className="col-md-6 login-form-2 bg-primary">
+          <h3>Register</h3>
+          <form>
+            <div className="form-group">
               <input type="text" className="form-control" placeholder="Name" />
-              <label className="floatingInput">Name</label>
             </div>
-            <div className="form-floating">
+            <div className="form-group">
               <input
                 type="email"
                 className="form-control"
                 placeholder="Email"
               />
-              <label className="floatingInput">Email</label>
             </div>
-            <div className="form-floating">
+            <div className="form-group">
               <input
                 type="password"
                 className="form-control"
-                placeholder="Email"
+                placeholder="Password"
               />
-              <label className="floatingInput">Password</label>
             </div>
-            <button className="w-100 btn btn-lg btn-success mt-2">
-              Sign in
-            </button>
+
+            <div className="form-group">
+              <input
+                type="password"
+                className="form-control"
+                placeholder="Repeat password"
+              />
+            </div>
+
+            <div className="form-group d-grid col-6">
+              <input type="submit" className="btn btn-light" value="Sign up" />
+            </div>
           </form>
         </div>
       </div>
-    </main>
+    </div>
   );
 };
