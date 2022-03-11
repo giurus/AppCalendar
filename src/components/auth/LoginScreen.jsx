@@ -1,5 +1,4 @@
 import React from "react";
-import "../../css/login.css";
 
 export const LoginScreen = () => {
   return (
