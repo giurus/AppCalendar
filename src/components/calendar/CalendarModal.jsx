@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import moment from "moment";
 import Modal from "react-modal";
+import { useDispatch, useSelector } from "react-redux";
 import DateTimePicker from "react-datetime-picker";
 import Swal from "sweetalert2";
+import { uiCloseModal } from "../../actions/ui";
 
 const customStyles = {
   content: {
@@ -20,6 +22,9 @@ const now = moment().minutes(0).seconds(0).add(1, "hours");
 const nowPlus = now.clone().add(1, "hours");
 
 export const CalendarModal = () => {
+  const dispatch = useDispatch();
+  const { modalOpen } = useSelector((state) => state.ui);
+
   const [startDate, setStartDate] = useState(now.toDate());
   const [endDate, setEndDate] = useState(nowPlus.toDate());
   const [titleValid, setTitleValid] = useState(true);
@@ -40,7 +45,10 @@ export const CalendarModal = () => {
     });
   };
 
-  const closeModal = () => {};
+  const closeModal = () => {
+    console.log("cerrar modal");
+    dispatch(uiCloseModal());
+  };
 
   const startDateChange = (e) => {
     setStartDate(e);
@@ -68,7 +76,7 @@ export const CalendarModal = () => {
     if (title.trim().length < 2) {
       return setTitleValid(false);
     }
-    // Realizar las acciones a la BD
+    // TODO: Realizar las acciones a la BD
     setTitleValid(true);
     closeModal();
   };
@@ -76,7 +84,7 @@ export const CalendarModal = () => {
   return (
     <div>
       <Modal
-        isOpen={true}
+        isOpen={modalOpen}
         // onAfterOpen={afterOpenModal}
         onRequestClose={closeModal}
         style={customStyles}
@@ -89,10 +97,7 @@ export const CalendarModal = () => {
         <form onSubmit={submitForm} className="container">
           <div className="mb-3">
             <label className="form-label">
-              Fecha y hora inicio{" "}
-              <span className="form-text">
-                La hora se cambia con las flechas direccionales
-              </span>
+              Fecha y hora inicio <span className="form-text">La hora se cambia con las flechas direccionales</span>
             </label>
             <DateTimePicker
               onChange={startDateChange}
@@ -103,12 +108,7 @@ export const CalendarModal = () => {
           </div>
           <div className="mb-3">
             <label className="form-label">Fecha y hora fin</label>
-            <DateTimePicker
-              onChange={endDateChange}
-              value={endDate}
-              minDate={startDate}
-              className="form-control"
-            />
+            <DateTimePicker onChange={endDateChange} value={endDate} minDate={startDate} className="form-control" />
           </div>
           <hr />
           <div className="mb-3">
