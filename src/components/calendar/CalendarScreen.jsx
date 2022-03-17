@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { Navbar } from "../ui/Navbar";
 import { messages } from "../../helpers/calendarMessages";
@@ -11,39 +11,33 @@ import "moment/locale/es-mx";
 import { CalendarEvent } from "./CalendarEvent";
 import { CalendarModal } from "./CalendarModal";
 import { uiOpenModal } from "../../actions/ui";
+import { eventSetActive } from "../../actions/events";
+import { AddNewFab } from "../ui/AddNewFab";
+import { DeleteEventFab } from "../ui/DeleteEventFab";
 
 moment.locale("es-mx");
 
 const localizer = momentLocalizer(moment);
-const events = [
-  {
-    title: "Boss Birthday",
-    start: moment().toDate(),
-    end: moment().add(2, "hours").toDate(),
-    notes: "Buy a cake",
-    bgColor: "#fafafa",
-    user: {
-      _id: "123",
-      name: "Andre",
-    },
-  },
-];
 
 export const CalendarScreen = () => {
   const dispatch = useDispatch();
+  const { events, activeEvent } = useSelector((state) => state.calendar);
   const [lastView, setLastView] = useState(localStorage.getItem("lastView") || "month");
-
   const onDoubleClick = (e) => {
     dispatch(uiOpenModal());
   };
 
   const onSelectEvent = (e) => {
-    console.log(e);
+    dispatch(eventSetActive(e));
   };
 
   const onViewChange = (e) => {
     setLastView(e);
     localStorage.setItem("lastView", e);
+  };
+
+  const onSelectSlot = () => {
+    dispatch(eventSetActive(null));
   };
 
   const eventStyleGetter = (event, start, end, isSelected) => {
@@ -72,10 +66,15 @@ export const CalendarScreen = () => {
         onSelectEvent={onSelectEvent}
         onView={onViewChange}
         view={lastView}
+        onSelectSlot={onSelectSlot}
+        selectable={true}
         components={{
           event: CalendarEvent,
         }}
       />
+      {activeEvent && <DeleteEventFab />}
+
+      <AddNewFab />
       <CalendarModal />
     </>
   );

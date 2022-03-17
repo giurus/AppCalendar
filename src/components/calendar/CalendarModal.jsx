@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import moment from "moment";
 import Modal from "react-modal";
 import { useDispatch, useSelector } from "react-redux";
 import DateTimePicker from "react-datetime-picker";
 import Swal from "sweetalert2";
 import { uiCloseModal } from "../../actions/ui";
+import { eventAddNew, eventSetActive, eventUpdate } from "../../actions/events";
 
 const customStyles = {
   content: {
@@ -21,22 +22,28 @@ Modal.setAppElement("#root");
 const now = moment().minutes(0).seconds(0).add(1, "hours");
 const nowPlus = now.clone().add(1, "hours");
 
+const initFormValues = {
+  title: "",
+  notes: "",
+  start: now.toDate(),
+  end: nowPlus.toDate(),
+};
+
 export const CalendarModal = () => {
   const dispatch = useDispatch();
   const { modalOpen } = useSelector((state) => state.ui);
-
-  const [startDate, setStartDate] = useState(now.toDate());
-  const [endDate, setEndDate] = useState(nowPlus.toDate());
+  const { activeEvent } = useSelector((state) => state.calendar);
   const [titleValid, setTitleValid] = useState(true);
-
-  const [formValues, setFormValues] = useState({
-    title: "Evento",
-    notes: "",
-    start: now.toDate(),
-    end: nowPlus.toDate(),
-  });
-
+  const [formValues, setFormValues] = useState(initFormValues);
   const { notes, title, start, end } = formValues;
+
+  useEffect(() => {
+    if (activeEvent) {
+      setFormValues(activeEvent);
+    } else {
+      setFormValues(initFormValues);
+    }
+  }, [activeEvent, setFormValues]);
 
   const handleInputChange = ({ target }) => {
     setFormValues({
@@ -46,12 +53,12 @@ export const CalendarModal = () => {
   };
 
   const closeModal = () => {
-    console.log("cerrar modal");
     dispatch(uiCloseModal());
+    dispatch(eventSetActive(null));
+    setFormValues(initFormValues);
   };
 
   const startDateChange = (e) => {
-    setStartDate(e);
     setFormValues({
       ...formValues,
       start: e,
@@ -59,7 +66,6 @@ export const CalendarModal = () => {
   };
 
   const endDateChange = (e) => {
-    setEndDate(e);
     setFormValues({
       ...formValues,
       end: e,
@@ -77,75 +83,84 @@ export const CalendarModal = () => {
       return setTitleValid(false);
     }
     // TODO: Realizar las acciones a la BD
+    if (activeEvent) {
+      dispatch(eventUpdate(formValues));
+    } else {
+      dispatch(
+        eventAddNew({
+          ...formValues,
+          id: new Date().getTime(),
+          user: {
+            _id: "1234",
+            name: "Pablito",
+          },
+        })
+      );
+    }
+
     setTitleValid(true);
     closeModal();
   };
 
   return (
-    <div>
-      <Modal
-        isOpen={modalOpen}
-        // onAfterOpen={afterOpenModal}
-        onRequestClose={closeModal}
-        style={customStyles}
-        closeTimeoutMS={200}
-        className="modal"
-        overlayClassName="modal-fondo"
-      >
-        <h1> Nuevo evento </h1>
+    <Modal
+      isOpen={modalOpen}
+      onRequestClose={closeModal}
+      style={customStyles}
+      closeTimeoutMS={200}
+      className="modal"
+      overlayClassName="modal-fondo"
+    >
+      <h2> {activeEvent ? "Editando Evento" : "Nuevo Evento"} </h2>
+      <hr />
+      <form onSubmit={submitForm} className="container">
+        <div className="mb-3">
+          <label className="form-label">
+            Fecha y hora inicio <span className="form-text">La hora se cambia con las flechas direccionales</span>
+          </label>
+          <DateTimePicker onChange={startDateChange} value={start} minDate={now.toDate()} className="form-control" />
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Fecha y hora fin</label>
+          <DateTimePicker onChange={endDateChange} value={end} minDate={start} className="form-control" />
+        </div>
         <hr />
-        <form onSubmit={submitForm} className="container">
-          <div className="mb-3">
-            <label className="form-label">
-              Fecha y hora inicio <span className="form-text">La hora se cambia con las flechas direccionales</span>
-            </label>
-            <DateTimePicker
-              onChange={startDateChange}
-              value={startDate}
-              minDate={now.toDate()}
-              className="form-control"
-            />
-          </div>
-          <div className="mb-3">
-            <label className="form-label">Fecha y hora fin</label>
-            <DateTimePicker onChange={endDateChange} value={endDate} minDate={startDate} className="form-control" />
-          </div>
-          <hr />
-          <div className="mb-3">
-            <label className="form-label">Titulo y notas</label>
-            <input
-              type="text"
-              className={`form-control ${!titleValid && "is-invalid"}`}
-              placeholder="Título del evento"
-              name="title"
-              autoComplete="off"
-              value={title}
-              onChange={handleInputChange}
-            />
-            <small id="emailHelp" className="form-text">
-              Una descripción corta
-            </small>
-          </div>
-          <div className="mb-3">
-            <textarea
-              type="text"
-              className="form-control"
-              placeholder="Notas"
-              rows="5"
-              name="notes"
-              value={notes}
-              onChange={handleInputChange}
-            ></textarea>
-            <small id="emailHelp" className="form-text">
-              Información adicional
-            </small>
-          </div>
-          <button type="submit" className="btn btn-outline-primary btn-block">
+        <div className="mb-3">
+          <label className="form-label">Titulo y notas</label>
+          <input
+            type="text"
+            className={`form-control ${!titleValid && "is-invalid"}`}
+            placeholder="Título del evento"
+            name="title"
+            autoComplete="off"
+            value={title}
+            onChange={handleInputChange}
+          />
+          <small id="emailHelp" className="form-text">
+            Una descripción corta
+          </small>
+        </div>
+        <div className="mb-3">
+          <textarea
+            type="text"
+            className="form-control"
+            placeholder="Notas"
+            rows="5"
+            name="notes"
+            value={notes}
+            onChange={handleInputChange}
+          ></textarea>
+          <small id="emailHelp" className="form-text">
+            Información adicional
+          </small>
+        </div>
+        <div className="d-grid gap-2">
+          <button type="submit" className="btn btn-outline-primary">
             <i className="fa-regular fa-floppy-disk"></i>
             <span> Guardar</span>
           </button>
-        </form>
-      </Modal>
-    </div>
+        </div>
+      </form>
+    </Modal>
   );
 };

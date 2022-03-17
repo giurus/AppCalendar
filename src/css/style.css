@@ -93,3 +93,20 @@
 .react-datetime-picker__wrapper{
   border: 0px solid gray !important;
 }
+
+/*Floating action buttons (FABs) */
+.fab{
+  border-radius: 100%;
+  bottom: 25px;
+  font-size: 30px;
+  padding: 20px;
+  position: fixed;
+  right: 25px;
+}
+
+.fab-danger{
+  bottom: 25px;
+  font-size: 18px;
+  position: fixed;
+  left: 25px;
+}
