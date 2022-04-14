@@ -1,6 +1,12 @@
 import { types } from "../types/types";
 
-export const eventAddNew = (e) => ({
+export const eventStartAddNew = (event) => {
+  return async (dispatch) => {
+    console.log(event);
+  };
+};
+
+const eventAddNew = (e) => ({
   type: types.eventAddNew,
   payload: e,
 });
